@@ -17,13 +17,13 @@ class MOS6500():
         self.program_counter = 0
         self.stack_pointer = 0
         self.status = {
-            "carry": False,
-            "zero": False,
-            "irq_disable": False,
-            "decimal_mode": False,
-            "brk_command": False,
-            "overflow": False,
-            "negative": False
+            "carry": 0,
+            "zero": 0,
+            "irq_disable": 0,
+            "decimal_mode": 0,
+            "brk_command": 0,
+            "overflow": 0,
+            "negative": 0
         }
 
         self.instruction_set = [0] * 0xFF
@@ -113,6 +113,8 @@ class MOS6500():
             return self.program_counter
         elif k == "s":
             return self.stack_pointer
+        elif k in self.status:
+            return self.status[k]
         else:
             return self.ram[k]
 
@@ -128,6 +130,8 @@ class MOS6500():
             self.program_counter = v
         elif k == "s":
             self.stack_pointer = v
+        elif k in self.status:
+            self.status[k] = v
         else:
             self.ram[k] = v
 

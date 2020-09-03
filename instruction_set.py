@@ -88,10 +88,20 @@ AND_ABSOLUTEX = AbsoluteXInstruction(AND, 4, 3)
 AND_ABSOLUTEY = AbsoluteYInsturction(AND, 4, 3)
 
 def ASL(data, mos):
-    mos[data] = (mos[data] << 1) & 255
-    mos["carry"] = mos[data] & 127
+    mos[data] = (mos[data] << 1) & 0xFF
+    mos["carry"] = mos[data] & 0x7F
 ASL_ABSOLUTE    = AbsoluteInstruction   (ASL, 6, 3)
 ASL_ZEROPAGE    = ZeroPageInstruction   (ASL, 5, 2)
 ASL_ACCUMULATOR = AccumulatorInstruction(ASL, 2, 1)
 ASL_ZEROPAGEX   = ZeroPageXInstruction  (6, 2)
 ASL_ABSOLUTEX   = AbsoluteXInstruction  (7, 3)
+
+def BCC(data, mos):
+    if mos["carry"] == 0:
+        mos["pc"] = (mos["pc"] & 0xFF) + data
+BCC_RELATIVE = RelativeInstruction(BCC, 2, 2)
+
+def BCS(data, mos):
+    if mos["carry"] == 1:
+        mos["pc"] = (mos["pc"] & 0xFF) + data
+BCS_RELATIVE = RelativeInstruction(BCS, 2, 2)
