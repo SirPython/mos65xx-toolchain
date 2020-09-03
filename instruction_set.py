@@ -104,7 +104,7 @@ class IndirectInstruction(Instruction):
 
     def __call__(self, data, mos):
         addr = data[0] + (data[1] << 8)
-        mos.program_counter = mos[addr] + (mos[addr + 1] << 8)
+        self.fn(mos[addr] + (mos[addr + 1] << 8), mos)
 class ZeroPageYInstruction(Instruction):
     def __init__(self, fn, num_cycles):
         super().__init__(fn, num_cycles, 2)
@@ -256,3 +256,18 @@ def JMP(data, mos):
     mos["pc"] = data
 JMP_ABSOLUTE = AbsoluteInstruction(JMP, 3)
 JMP_INDIRECT = IndirectInstruction(JMP, 5)
+
+def JSR(data, mos):
+    pass
+JSR_ABSOLUTE = AbsoluteInstruction(JSR, 6)
+
+def LDA(data, mos):
+    mos["a"] = data
+LDA_IMMEDIATE = ImmediateInstruction(LDA, 2)
+LDA_ABSOLUTE  = AbsoluteInstruction (LDA, 4)
+LDA_ZEROPAGE  = ZeroPageInstruction (LDA, 3)
+LDA_INDIRECTX = IndirectXInstruction(LDA, 6)
+LDA_INDIRECTY = IndirectYInstruction(LDA, 5)
+LDA_ZEROPAGEX = ZeroPageXInstruction(LDA, 4)
+LDA_ABSOLUTEX = AbsoluteXInstruction(LDA, 4)
+LDA_ABSOLUTEY = AbsoluteYInsturction(LDA, 4)
