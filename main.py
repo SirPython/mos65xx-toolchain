@@ -29,6 +29,42 @@ class MOS6500():
         self.instruction_set[0x69] = ADC_IMMEDIATE
         self.instruction_set[0x6D] = ADC_ABSOLUTE
         self.instruction_set[0x65] = ADC_ZEROPAGE
+        self.instruction_set[0x61] = ADC_INDIRECTX
+        self.instruction_set[0x71] = ADC_INDIRECTY
+        self.instruction_set[0x75] = ADC_ZEROPAGEX
+        self.instruction_set[0x7D] = ADC_ABSOLUTEX
+        self.instruction_set[0x79] = ADC_ABSOLUTEY
+        self.instruction_set[0x29] = AND_IMMEDIATE
+        self.instruction_set[0x2D] = AND_ABSOLUTE
+        self.instruction_set[0x25] = AND_ZEROPAGE
+        self.instruction_set[0x21] = AND_INDIRECTX
+        self.instruction_set[0x31] = NONE
+        self.instruction_set[0x35] = NONE
+        self.instruction_set[0x3D] = NONE
+        self.instruction_set[0x39] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
+        self.instruction_set[0x00] = NONE
 
     def load(self, rom):
         self.rom = rom
@@ -63,16 +99,6 @@ class MOS6500():
             for _ in range(n):
                 instruction, data = self.read_instruction()
                 instruction(data, self)
-
-
-class Instruction():
-    def __init__(self, fn, num_cycles, num_bytes):
-        self.fn = fn
-        self.num_cycles = num_cycles
-        self.num_bytes = num_bytes
-
-    def __call__(self, data, mos):
-        self.fn()
 
 
 if __name__ == "__main__":
