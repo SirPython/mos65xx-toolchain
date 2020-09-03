@@ -141,3 +141,33 @@ CLI_IMPLIED = ImpliedInstruction(CLI, 2, 1)
 def CLV(mos):
     mos["overflow"] = 0
 CLV_IMPLIED = ImpliedInstruction(CLV, 2, 1)
+
+def compare(data, reg):
+    res = reg - data
+    mos["negative"] = 1 if res < 0 else mos["negative"]
+    mos["zero"] = 1 if res == 0 else mos["zero"]
+    mos["carry"] = 14 # how do i do this... i'm not good with carry bits clearly
+
+def CMP(data, mos):
+    compare(data, mos["a"])
+CMP_IMMEDIATE = ImmediateInstruction(CMP, 2, 2)
+CMP_ABSOLUTE  = AbsoluteInstruction (CMP, 4, 3)
+CMP_ZEROPAGE  = ZeroPageInstruction (CMP, 3, 2)
+CMP_INDIRECTX = IndirectXInstruction(CMP, 6, 2)
+CMP_INDIRECTY = IndirectYInstruction(CMP, 5, 2)
+CMP_ZEROPAGEX = ZeroPageXInstruction(CMP, 4, 2)
+CMP_ABSOLUTEX = AbsoluteXInstruction(CMP, 4, 3)
+CMP_ABSOLUTEY = AbsoluteXInstruction(CMP, 4, 3)
+
+def CPX(data, mos):
+    compare(data, mos["x"])
+CPX_IMMEDIATE = ImmediateInstruction(CPX, 2, 2)
+CPX_ABSOLUTE  = AbsoluteInstruction (CPX, 4, 3)
+CPX_ZEROPAGE  = ZeroPageInstruction (CPX, 3, 2)
+
+
+def CPY(data, mos):
+    compare(data, mos["y"])
+CPY_IMMEDIATE = ImmediateInstruction(CPY, 2, 2)
+CPY_ABSOLUTE  = AbsoluteInstruction (CPY, 4, 3)
+CPY_ZEROPAGE  = ZeroPageInstruction (CPY, 3, 2)

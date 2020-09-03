@@ -100,6 +100,10 @@ class MOS6500():
             for _ in range(n):
                 instruction, data = self.read_instruction()
                 instruction(data, self)
+
+                # Check the accumulator and update flags. Some instructions
+                # will update flags on their own if the accumulator is
+                # unaffected.
                 self.update_flags()
 
     def __getitem__(self, k):
