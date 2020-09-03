@@ -10,23 +10,39 @@ class ImmediateInstruction(Instruction):
         pass
 class AbsoluteInstruction(Instruction):
     def __call__(self, data, mos):
-        self.fn(mos.ram[(data[1] << 8) + data[0]], mos)
+        self.fn(mos.ram[(data[1] << 8)] + data[0], mos)
 class ZeroPageInstruction(Instruction):
     def __call__(self, data, mos):
         self.fn(mos.ram[data[0]], mos)
 class AccumulatorInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn("a", mos)
 class ImpliedInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(mos)
 class IndirectXInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(
+            mos.ram[
+                mos.index_x + data[0] +
+                ((mox.index_x + data[0] + 1) << 8)
+            ],
+            mos
+        )
 class IndirectYInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(
+            mos.ram[
+                mos.ram[data[0]] + mos.index_y +
+                ((mos.ram[data[0] + 1] + mox.index_y) << 8)
+            ],
+            mos
+        )
 class ZeroPageXInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
 class AbsoluteXInstruction(Instruction):
     pass
-class AbsolutelYInsturction(Instruction):
+class AbsoluteYInsturction(Instruction):
     pass
 class RelativeInstruction(Instruction):
     pass
@@ -40,3 +56,14 @@ def ADC(data, mos):
 ADC_IMMEDIATE = ImmediateInstruction(ADC, 2, 2)
 ADC_ABSOLUTE  = AbsoluteInstruction (ADC, 4, 3)
 ADC_ZEROPAGE  = ZeroPageInstruction (ADC, 3, 2)
+ADC_INDIRECTX = IndirectXInstruction(ADC, 6, 2)
+ADC_INDIRECTY = IndirectYInstruction(ADC, 6, 2)
+ADC_ZEROPAGEX = ZeroPageXInstruction(ADC, 4, 2)
+ADC_ABSOLUTEX = AbsoluteXInstruction(ADC, 4, 3)
+ADC_ABSOLUTEY = AbsoluteYInsturction(ADC, 4, 3)
+
+def AND(data, mos):
+    pass
+
+def ASL(data, mos):
+    mos[data] = mos[data] << 1

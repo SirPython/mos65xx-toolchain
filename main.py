@@ -102,6 +102,35 @@ class MOS6500():
                 instruction(data, self)
                 self.update_flags()
 
+    def __getitem__(self, k):
+        if k == "a":
+            return self.accumulator
+        elif k == "x":
+            return self.index_x
+        elif k == "y":
+            return self.index_y
+        elif k == "pc":
+            return self.program_counter
+        elif k == "s":
+            return self.stack_pointer
+        else:
+            return self.ram[k]
+
+    # So accumulator instructions can be passed "a"
+    def __setitem__(self, k, v):
+        if k == "a":
+            self.accumulator = v
+        elif k == "x":
+            self.index_x = v
+        elif k == "y":
+            self.index_y = v
+        elif k == "pc":
+            self.program_counter = v
+        elif k == "s":
+            self.stack_pointer = v
+        else:
+            self.ram[k] = v
+
     def __str__(self):
         ret = f"""Accumulator: {self.accumulator}
 Index X: {self.index_x}
