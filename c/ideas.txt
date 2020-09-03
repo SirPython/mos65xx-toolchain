@@ -1,0 +1,5 @@
+- either each opcode code needs to update the flags manually,
+or the interpreter loop can change them after executing the opcode
+
+- maybe make this a mos6500 to C compiler, so you can compile the C code
+and then you're left with an executable that is the mos6500 stuff.
