@@ -1,11 +1,8 @@
 #ifndef MOS6500_H
 #define MOS6500_H
 
-
-
-
 struct {
-    char ram[128];
+    char ram[8192];
 
     char accumulator;
     char index_y;
