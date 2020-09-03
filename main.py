@@ -3,6 +3,7 @@ http://archive.6502.org/datasheets/mos_6500_mpu_mar_1980.pdf
 http://archive.6502.org/datasheets/mos_6500_mpu_nov_1985.pdf
 http://pdf.datasheetcatalog.com/datasheet/UMC/mXyztwtz.pdf
 """
+import os
 
 import instruction_set
 
@@ -16,13 +17,13 @@ class MOS6500():
         self.program_counter = 0
         self.stack_pointer = 0
         self.status = {
-            "carry": 0,
-            "zero": 0,
-            "irq_disable": 0,
-            "decimal_mode": 0,
-            "brk_command": 0,
-            "overflow": 0,
-            "negative": 0
+            "carry": False,
+            "zero": False,
+            "irq_disable": False,
+            "decimal_mode": False,
+            "brk_command": False,
+            "overflow": False,
+            "negative": False
         }
 
         self.instruction_set = [0] * 0xFF
@@ -99,6 +100,23 @@ class MOS6500():
             for _ in range(n):
                 instruction, data = self.read_instruction()
                 instruction(data, self)
+                self.update_flags()
+
+    def __str__(self):
+        ret = f"""Accumulator: {self.accumulator}
+Index X: {self.index_x}
+Index Y: {self.index_y}
+Program Counter: {self.program_counter}
+Stack Pointer: {self.stack_pointer}
+
+Status.Carry: {self.status["carry"]}
+Status.Zero: {self.status["zero"]}
+Status.IRQDisable: {self.status["irq_disable"]}
+Status.DecimalMode: {self.status["decimal_mode"]}
+Status.BRKCommand: {self.status["brk_command"]}
+Status.Overflow: {self.status["overflow"]}
+Status.Negative: {self.status["negative"]}
+"""
 
 
 if __name__ == "__main__":
@@ -108,5 +126,16 @@ if __name__ == "__main__":
     mos = MOS6500()
 
     while True:
-        try:
-            op =
+        os.system("cls" if os.name == "nt" else "clear")
+        print(mos)
+
+        while True:
+            ram_addr = input()
+
+            if ram_addr == "":
+                break
+            else:
+                ram_addr = int(ram_addr)
+                print(f"RAM[{ram_addr}]: {mos.ram[ram_addr]}")
+
+        mos.exec(1)
