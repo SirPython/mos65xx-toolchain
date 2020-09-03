@@ -1,3 +1,5 @@
+# todo: figure out indirect y, figure out carry bits and overflow stuff
+
 class Instruction():
     def __init__(self, fn, num_cycles, num_bytes):
         self.fn = fn
@@ -10,7 +12,13 @@ class ImmediateInstruction(Instruction):
         pass
 class AbsoluteInstruction(Instruction):
     def __call__(self, data, mos):
-        self.fn(mos.ram[(data[1] << 8)] + data[0], mos)
+        self.fn(
+            mos.ram[
+                data[0] +
+                (data[1] << 8)
+            ],
+            mos
+        )
 class ZeroPageInstruction(Instruction):
     def __call__(self, data, mos):
         self.fn(mos.ram[data[0]], mos)
@@ -22,34 +30,40 @@ class ImpliedInstruction(Instruction):
         self.fn(mos)
 class IndirectXInstruction(Instruction):
     def __call__(self, data, mos):
+        addr = data[0] + mos.index_x
         self.fn(
             mos.ram[
-                mos.index_x + data[0] +
-                ((mox.index_x + data[0] + 1) << 8)
+                mos.ram[addr] +
+                (mos.ram[addr + 1] << 8)
             ],
             mos
         )
 class IndirectYInstruction(Instruction):
     def __call__(self, data, mos):
+        addr = mos.ram[data[0]] + mos.index_y
         self.fn(
-            mos.ram[
-                mos.ram[data[0]] + mos.index_y +
-                ((mos.ram[data[0] + 1] + mox.index_y) << 8)
-            ],
+            mos[addr],
             mos
         )
 class ZeroPageXInstruction(Instruction):
     def __call__(self, data, mos):
+        self.fn(mos.ram[data[0] + mos.index_x], mos)
 class AbsoluteXInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(mos.ram[data[0] + data[1] + mos.index_x], mos)
 class AbsoluteYInsturction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(mos.ram[data[0] + data[1] + mos.index_y], mos)
 class RelativeInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(data[0], mos)
 class IndirectInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        addr = data[0] + (data[1] << 8)
+        mos.program_counter = mos.ram[addr] + (mos.ram[addr + 1] << 8)
 class ZeroPageYInstruction(Instruction):
-    pass
+    def __call__(self, data, mos):
+        self.fn(mos.ram[data[0] + mos.index_y], mos)
 
 def ADC(data, mos):
     mos.accumulator += data
@@ -63,7 +77,12 @@ ADC_ABSOLUTEX = AbsoluteXInstruction(ADC, 4, 3)
 ADC_ABSOLUTEY = AbsoluteYInsturction(ADC, 4, 3)
 
 def AND(data, mos):
-    pass
-
-def ASL(data, mos):
-    mos[data] = mos[data] << 1
+    mos.accumulator = mos.accumulator & data
+AND_IMMEDIATE = ImmediateInstruction(AND, 2, 2)
+AND_ABSOLUTE  = AbsoluteInstruction (AND, 4, 3)
+AND_ZEROPAGE  = ZeroPageInstruction (AND, 3, 2)
+AND_INDIRECTX = IndirectXInstruction(AND, 6, 2)
+AND_INDIRECTY = IndirectYInstruction(AND, 6, 2)
+AND_ZEROPAGEX = ZeroPageXInstruction(AND, 4, 2)
+AND_ABSOLUTEX = AbsoluteXInstruction(AND, 4, 3)
+AND_ABSOLUTEY = AbsoluteYInsturction(AND, 4, 3)
