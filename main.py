@@ -4,8 +4,26 @@ http://archive.6502.org/datasheets/mos_6500_mpu_nov_1985.pdf
 http://pdf.datasheetcatalog.com/datasheet/UMC/mXyztwtz.pdf
 """
 import os
+import ctypes
 
 import instruction_set
+
+# https://stackoverflow.com/questions/142812/does-python-have-a-bitfield-type
+class StatusRegister_bits(ctypes.LittleEndianStructure):
+    _fields_ = [
+            ("carry", ctypes.c_uint8, 1),
+            ("zero", ctypes.c_uint8, 1),
+            ("irq_disable", ctypes.c_uint8, 1),
+            ("decimal_mode", ctypes.c_uint8, 1),
+            ("brk_command", ctypes.c_uint8, 1),
+            ("_", ctypes.c_uint8, 1),
+            ("overflow", ctypes.c_uint8, 1),
+            ("negative", ctypes.c_uint8, 1)
+        ]
+
+class StatusRegister(ctypes.Union):
+    _fields_ = [("b", StatusRegister_bits),
+                ("asbyte", ctypes.c_uint8)]
 
 class MOS6500():
     def __init__(self):
@@ -16,15 +34,7 @@ class MOS6500():
         self.index_y = 0
         self.program_counter = 0
         self.stack_pointer = 0
-        self.status = {
-            "carry": 0,
-            "zero": 0,
-            "irq_disable": 0,
-            "decimal_mode": 0,
-            "brk_command": 0,
-            "overflow": 0,
-            "negative": 0
-        }
+        self.status = StatusRegister()
 
         self.instruction_set = [0] * 0xFF
         self.instruction_set[0x69] = ADC_IMMEDIATE
@@ -123,8 +133,22 @@ class MOS6500():
             return self.program_counter
         elif k == "s":
             return self.stack_pointer
-        elif k in self.status:
-            return self.status[k]
+        elif k == "carry":
+            return self.status.b.carry
+        elif k == "zero":
+            return self.status.b.zero
+        elif k == "irq_disable":
+            return self.status.b.irq_disable
+        elif k == "decimal_mode":
+            return self.status.b.decimal_mode
+        elif k == "brk_command":
+            return self.status.b.brk_command
+        elif k == "overflow":
+            return self.status.b.overflow
+        elif k == "negative":
+            return self.status.b.negative
+        elif k == "status":
+            return self.status.asbyte
         else:
             return self.ram[k]
 
@@ -140,8 +164,22 @@ class MOS6500():
             self.program_counter = v
         elif k == "s":
             self.stack_pointer = v
-        elif k in self.status:
-            self.status[k] = v
+        elif k == "carry":
+            self.status.b.carry = v
+        elif k == "zero":
+            self.status.b.zero = v
+        elif k == "irq_disable":
+            self.status.b.irq_disable = v
+        elif k == "decimal_mode":
+            self.status.b.decimal_mode = v
+        elif k == "brk_command":
+            self.status.b.brk_command = v
+        elif k == "overflow":
+            self.status.b.overflow = v
+        elif k == "negative":
+            self.status.b.negative = v
+        elif k == "status":
+            self.status.asbyte = v
         else:
             self.ram[k] = v
 
@@ -152,13 +190,13 @@ Index Y: {self.index_y}
 Program Counter: {self.program_counter}
 Stack Pointer: {self.stack_pointer}
 
-Status.Carry: {self.status["carry"]}
-Status.Zero: {self.status["zero"]}
-Status.IRQDisable: {self.status["irq_disable"]}
-Status.DecimalMode: {self.status["decimal_mode"]}
-Status.BRKCommand: {self.status["brk_command"]}
-Status.Overflow: {self.status["overflow"]}
-Status.Negative: {self.status["negative"]}
+Status.Carry: {self["carry"]}
+Status.Zero: {self["zero"]}
+Status.IRQDisable: {self["irq_disable"]}
+Status.DecimalMode: {self["decimal_mode"]}
+Status.BRKCommand: {self["brk_command"]}
+Status.Overflow: {self["overflow"]}
+Status.Negative: {self["negative"]}
 """
 
 
