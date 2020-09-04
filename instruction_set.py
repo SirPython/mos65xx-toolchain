@@ -140,8 +140,8 @@ def ASL(data, mos):
 ASL_ABSOLUTE    = AbsoluteInstruction   (ASL, 6)
 ASL_ZEROPAGE    = ZeroPageInstruction   (ASL, 5)
 ASL_ACCUMULATOR = AccumulatorInstruction(ASL, 2)
-ASL_ZEROPAGEX   = ZeroPageXInstruction  (6, 2)
-ASL_ABSOLUTEX   = AbsoluteXInstruction  (7, 3)
+ASL_ZEROPAGEX   = ZeroPageXInstruction  (ASL, 6)
+ASL_ABSOLUTEX   = AbsoluteXInstruction  (ASL, 7)
 
 BCC_RELATIVE = RelativeInstruction("carry", 0, 2)
 BCS_RELATIVE = RelativeInstruction("carry", 1, 2)
@@ -271,3 +271,43 @@ LDA_INDIRECTY = IndirectYInstruction(LDA, 5)
 LDA_ZEROPAGEX = ZeroPageXInstruction(LDA, 4)
 LDA_ABSOLUTEX = AbsoluteXInstruction(LDA, 4)
 LDA_ABSOLUTEY = AbsoluteYInsturction(LDA, 4)
+
+def LDX(data, mos):
+    mos["x"] = data
+LDX_IMMEDIATE = ImmediateInstruction(LDX, 2)
+LDX_ABSOLUTE  = AbsoluteInstruction (LDX, 4)
+LDX_ZEROPAGE  = ZeroPageInstruction (LDX, 3)
+LDX_ABSOLUTEY = AbsoluteYInsturction(LDX, 4)
+LDX_ZEROPAGEY = ZeroPageYInstruction(LDX, 4)
+
+def LDY(data, mos):
+    mos["y"] = data
+LDY_IMMEDIATE = ImmediateInstruction(LDY, 2)
+LDY_ABSOLUTE  = AbsoluteInstruction (LDY, 4)
+LDY_ZEROPAGE  = ZeroPageInstruction (LDY, 3)
+LDY_ZEROPAGEX = ZeroPageXInstruction(LDY, 4)
+LDY_ABSOLUTEX = AbsoluteXInstruction(LDY, 4)
+
+def LSR(data, mos):
+    mos[data] = mos[data] >> 1
+    mos["carry"] = mos[data] & 0x01
+LSR_ABSOLUTE    = AbsoluteInstruction   (LSR, 6)
+LSR_ZEROPAGE    = ZeroPageInstruction   (LSR, 5)
+LSR_ACCUMULATOR = AccumulatorInstruction(LSR, 2)
+LSR_ZEROPAGEX   = ZeroPageXInstruction  (LSR, 6)
+LSR_ABSOLUTEX   = AbsoluteXInstruction  (LSR, 7)
+
+def NOP(mos):
+    pass
+NOP_IMPLIED = ImpliedInstruction(NOP, 2)
+
+def ORA(data, mos):
+    mos["a"] = mos["a"] | a
+ORA_IMMEDIATE = ImmediateInstruction(ORA, 2)
+ORA_ABSOLUTE  = AbsoluteInstruction (ORA, 4)
+ORA_ZEROPAGE  = ZeroPageInstruction (ORA, 3)
+ORA_INDIRECTX = IndirectXInstruction(ORA, 6)
+ORA_INDIRECTY = IndirectYInstruction(ORA, 5)
+ORA_ZEROPAGEX = ZeroPageXInstruction(ORA, 4)
+ORA_ABSOLUTEX = AbsoluteXInstruction(ORA, 4)
+ORA_ABSOLUTEY = AbsoluteYInsturction(ORA, 4)

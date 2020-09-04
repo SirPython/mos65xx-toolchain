@@ -83,7 +83,7 @@ class MOS6500():
 
     def read_instruction(self):
         instruction = self.instruction_set[self.read_bytes()]
-        data = self.read_bytes(instruction.num_bytes)
+        data = self.read_bytes(instruction.num_bytes - 1)
 
         return instruction, data
 
@@ -101,9 +101,15 @@ class MOS6500():
                 instruction, data = self.read_instruction()
                 instruction(data, self)
 
-                # Check the accumulator and update flags. Some instructions
+                # Check the registers and update flags. Some instructions
                 # will update flags on their own if the accumulator is
                 # unaffected.
+                # Maybe check before and after to see which register is modified
+                # ... could even do the same with the whole state. How about this:
+                # the set_item can set a flag for which thing was modified,
+                # and then this can check that flag and update the status.
+                # or maybe the set_item goes directly to the routine to update
+                # status
                 self.update_flags()
 
     def __getitem__(self, k):
