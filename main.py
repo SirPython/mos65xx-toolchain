@@ -9,24 +9,53 @@ import sys
 from mos6500 import MOS6500
 
 
+""" JUST MAKE THIS A PROPER ASSEMBLER, DISASSEMBLER, LINKER, DEBUGGER COMBO """
+
 if __name__ == "__main__":
-    with open(sys.argv[1], "rb") as f:
-        rom = f.read()
+    if sys.argv[1] == "debugger":
+        with open(sys.argv[2], "rb") as f:
+            rom = f.read()
 
-    mos = MOS6500()
-    mos.load(rom)
-
-    while True:
-        print(mos)
+        mos = MOS6500(65536)
+        mos.load(rom)
 
         while True:
-            ram_addr = input()
+            print(mos)
 
-            if ram_addr == "":
-                break
-            else:
-                ram_addr = int(ram_addr)
-                print(f"RAM[{ram_addr}]: {mos.ram[ram_addr]}")
+            while True:
+                ram_addr = input()
 
-        os.system("cls" if os.name == "nt" else "clear")
-        mos.exec(1)
+                if ram_addr == "":
+                    break
+                else:
+                    try:
+                        ram_addr = int(ram_addr, base=16)
+                        print(f"RAM[{hex(ram_addr)}]: {mos.ram[ram_addr]}")
+                    except ValueError:
+                        print("Invalid syntax; try again.")
+
+            os.system("cls" if os.name == "nt" else "clear")
+            mos.exec(1)
+    elif sys.argv[1] == "disassembler":
+        with open(sys.argv[2], "rb") as f:
+            rom = f.read()
+
+        mos = MOS6500(65536)
+        mos.load(rom)
+
+        with open(f"{sys.argv[2].split('.')[0]}.asm", "w") as f:
+            while True:
+                try:
+                    instruction, data = mos.read_instruction()
+                except (IndexError, KeyError):
+                    """
+                    Reached when the end of the file has been met, or when
+                    an invalid opcode is encountered.
+                    """
+                    break
+
+                out = f"{instruction.fn.__name__}"
+                for pt in data:
+                    out += f" {hex(pt)}"
+
+                f.write(f"{out}\n")

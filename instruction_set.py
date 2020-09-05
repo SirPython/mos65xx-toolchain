@@ -88,12 +88,17 @@ class AbsoluteYInsturction(Instruction):
     def __call__(self, data, mos):
         self.mem_routine(data[0] + data[1] + mos.index_y, mos)
 class RelativeInstruction(Instruction):
-    def __init__(self, status_flag, cond_val, num_cycles):
+    def __init__(self, name, status_flag, cond_val, num_cycles):
         self.status_flag = status_flag
         self.cond_val = cond_val
 
         self.num_cycles = num_cycles
         self.num_bytes = 2
+
+        def _():
+            pass
+        self.fn = _
+        self.fn.__name__ = name
 
     def __call__(self, data, mos):
         if mos[self.status_flag] == self.cond_val:
@@ -143,9 +148,9 @@ ASL_ACCUMULATOR = AccumulatorInstruction(ASL, 2)
 ASL_ZEROPAGEX   = ZeroPageXInstruction  (ASL, 6)
 ASL_ABSOLUTEX   = AbsoluteXInstruction  (ASL, 7)
 
-BCC_RELATIVE = RelativeInstruction("carry", 0, 2)
-BCS_RELATIVE = RelativeInstruction("carry", 1, 2)
-BEQ_RELATIVE = RelativeInstruction("zero",  1, 2)
+BCC_RELATIVE = RelativeInstruction("BCC", "carry", 0, 2)
+BCS_RELATIVE = RelativeInstruction("BCS", "carry", 1, 2)
+BEQ_RELATIVE = RelativeInstruction("BEQ", "zero",  1, 2)
 
 def BIT(data, mos):
     res = (mos["a"] & data) << 6
@@ -154,16 +159,16 @@ def BIT(data, mos):
 BIT_ABSOLUTE = AbsoluteInstruction(BIT, 4)
 BIT_ZEROPAGE = ZeroPageInstruction(BIT, 3)
 
-BMI_RELATIVE = RelativeInstruction("negative", 1, 2)
-BNE_RELATIVE = RelativeInstruction("zero",     0, 2)
-BPL_RELATIVE = RelativeInstruction("negative", 0, 2)
+BMI_RELATIVE = RelativeInstruction("BMI", "negative", 1, 2)
+BNE_RELATIVE = RelativeInstruction("BNE", "zero",     0, 2)
+BPL_RELATIVE = RelativeInstruction("BPL", "negative", 0, 2)
 
 def BRK(data, mos):
     print("****BREAK****")
 BRK_IMPLIED = ImpliedInstruction(BRK, 7)
 
-BVC_RELATIVE = RelativeInstruction("overflow", 0, 2)
-BVS_RELATIVE = RelativeInstruction("overflow", 1, 2)
+BVC_RELATIVE = RelativeInstruction("BVC", "overflow", 0, 2)
+BVS_RELATIVE = RelativeInstruction("BVS", "overflow", 1, 2)
 
 def CLC(mos):
     mos["carry"] = 0

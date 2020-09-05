@@ -21,8 +21,8 @@ class StatusRegister(ctypes.Union):
                 ("asbyte", ctypes.c_uint8)]
 
 class MOS6500():
-    def __init__(self):
-        self.ram = [0] * 65536
+    def __init__(self, ram):
+        self.ram = [0] * ram
 
         self.accumulator = 0
         self.index_x = 0
@@ -187,7 +187,7 @@ class MOS6500():
     def load(self, rom):
         self.rom = rom
         self.program_counter = 0
-        self.ram = [0] * 65536
+        self.ram = [0] * len(self.ram)
 
     def read_bytes(self, n=1):
         ret = []
@@ -199,11 +199,16 @@ class MOS6500():
         return ret
 
     def read_instruction(self):
+        """
+        Raises KeyError when an invalid opcode is read.
+        """
         opcode = self.read_bytes()[0]
         instruction = self.instruction_set[opcode]
-        data = self.read_bytes(instruction.num_bytes - 1)
 
-        print(f"Executing {hex(opcode)}")
+        if instruction == 0:
+            raise KeyError
+
+        data = self.read_bytes(instruction.num_bytes - 1)
 
         return instruction, data
 
