@@ -1,3 +1,8 @@
+import ctypes
+from instruction_set import *
+
+# https://problemkaputt.de/2k6specs.htm
+
 # https://stackoverflow.com/questions/142812/does-python-have-a-bitfield-type
 class StatusRegister_bits(ctypes.LittleEndianStructure):
     _fields_ = [
@@ -17,7 +22,7 @@ class StatusRegister(ctypes.Union):
 
 class MOS6500():
     def __init__(self):
-        self.ram = [0] * 8192
+        self.ram = [0] * 65536
 
         self.accumulator = 0
         self.index_x = 0
@@ -179,11 +184,10 @@ class MOS6500():
         self.instruction_set[0x9A] = TXS_IMPLIED
         self.instruction_set[0x98] = TYA_IMPLIED
 
-
     def load(self, rom):
         self.rom = rom
         self.program_counter = 0
-        self.ram = [0] * 8192
+        self.ram = [0] * 65536
 
     def read_bytes(self, n=1):
         ret = []
@@ -195,8 +199,11 @@ class MOS6500():
         return ret
 
     def read_instruction(self):
-        instruction = self.instruction_set[self.read_bytes()]
+        opcode = self.read_bytes()[0]
+        instruction = self.instruction_set[opcode]
         data = self.read_bytes(instruction.num_bytes - 1)
+
+        print(f"Executing {hex(opcode)}")
 
         return instruction, data
 
@@ -224,6 +231,9 @@ class MOS6500():
                 # or maybe the set_item goes directly to the routine to update
                 # status
                 self.update_flags()
+
+    def update_flags(self):
+        pass
 
     def __getitem__(self, k):
         if k == "a":
@@ -287,7 +297,7 @@ class MOS6500():
             self.ram[k] = v
 
     def __str__(self):
-        ret = f"""Accumulator: {self.accumulator}
+        return f"""Accumulator: {self.accumulator}
 Index X: {self.index_x}
 Index Y: {self.index_y}
 Program Counter: {self.program_counter}

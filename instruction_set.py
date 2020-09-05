@@ -7,7 +7,7 @@ class Instruction():
         self.num_cycles = num_cycles
         self.num_bytes = num_bytes
 
-    def mem_routine(addr, mos):
+    def mem_routine(self, addr, mos):
         """
         Some instructions modify the memory which with they interact. This
         function handles setting the memory value after the computations.
@@ -88,7 +88,7 @@ class AbsoluteYInsturction(Instruction):
     def __call__(self, data, mos):
         self.mem_routine(data[0] + data[1] + mos.index_y, mos)
 class RelativeInstruction(Instruction):
-    def __init__(self, status_flag, cond_val, num_cycles, num_bytes):
+    def __init__(self, status_flag, cond_val, num_cycles):
         self.status_flag = status_flag
         self.cond_val = cond_val
 
@@ -97,7 +97,7 @@ class RelativeInstruction(Instruction):
 
     def __call__(self, data, mos):
         if mos[self.status_flag] == self.cond_val:
-            mos["pc"] = (mos["pc"] & 0xFF) + data
+            mos["pc"] = (mos["pc"] & 0xFF) + data[0]
 class IndirectInstruction(Instruction):
     def __init__(self, fn, num_cycles):
         super().__init__(fn, num_cycles, 3)
@@ -151,16 +151,16 @@ def BIT(data, mos):
     res = (mos["a"] & data) << 6
     mos["overflow"] = res & 0x01
     mos["negative"] = res << 1
-BIT_ABSOLUTE = AbsoluteInstruction(BIT, 4, 3)
-BIT_ZEROPAGE = ZeroPageInstruction(BIT, 3, 2)
+BIT_ABSOLUTE = AbsoluteInstruction(BIT, 4)
+BIT_ZEROPAGE = ZeroPageInstruction(BIT, 3)
 
 BMI_RELATIVE = RelativeInstruction("negative", 1, 2)
 BNE_RELATIVE = RelativeInstruction("zero",     0, 2)
 BPL_RELATIVE = RelativeInstruction("negative", 0, 2)
 
 def BRK(data, mos):
-    pass
-BRK_IMPLIED = ImpliedInstruction(BRK, 7, 1)
+    print("****BREAK****")
+BRK_IMPLIED = ImpliedInstruction(BRK, 7)
 
 BVC_RELATIVE = RelativeInstruction("overflow", 0, 2)
 BVS_RELATIVE = RelativeInstruction("overflow", 1, 2)
@@ -258,7 +258,7 @@ JMP_ABSOLUTE = AbsoluteInstruction(JMP, 3)
 JMP_INDIRECT = IndirectInstruction(JMP, 5)
 
 def JSR(data, mos):
-    pass
+    print("****JSR****")
 JSR_ABSOLUTE = AbsoluteInstruction(JSR, 6)
 
 def LDA(data, mos):
@@ -332,7 +332,7 @@ def PLA(mos):
 PLA_IMPLIED = ImpliedInstruction(PLA, 4)
 
 def PLP(mos):
-    pull("status" mos)
+    pull("status", mos)
 PLP_IMPLIED = ImpliedInstruction(PLP, 4)
 
 def ROL(data, mos):
@@ -358,11 +358,11 @@ ROR_ZEROPAGEX   = ZeroPageXInstruction  (ROR, 6)
 ROR_ABSOLUTEX   = AbsoluteXInstruction  (ROR, 7)
 
 def RTI(mos):
-    pass
+    print("****RTI****")
 RTI_IMPLIED = ImpliedInstruction(RTI, 6)
 
 def RTS(mos):
-    pass
+    print("****RTS****")
 RTS_IMPLIED = ImpliedInstruction(RTS, 6)
 
 def SBC(data, mos):

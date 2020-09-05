@@ -4,19 +4,19 @@ http://archive.6502.org/datasheets/mos_6500_mpu_nov_1985.pdf
 http://pdf.datasheetcatalog.com/datasheet/UMC/mXyztwtz.pdf
 """
 import os
-import ctypes
+import sys
 
-import instruction_set
+from mos6500 import MOS6500
 
 
 if __name__ == "__main__":
-    with open(self.argv[1], "rb") as f:
+    with open(sys.argv[1], "rb") as f:
         rom = f.read()
 
     mos = MOS6500()
+    mos.load(rom)
 
     while True:
-        os.system("cls" if os.name == "nt" else "clear")
         print(mos)
 
         while True:
@@ -28,4 +28,5 @@ if __name__ == "__main__":
                 ram_addr = int(ram_addr)
                 print(f"RAM[{ram_addr}]: {mos.ram[ram_addr]}")
 
+        os.system("cls" if os.name == "nt" else "clear")
         mos.exec(1)
