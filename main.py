@@ -54,8 +54,6 @@ if __name__ == "__main__":
                     """
                     break
 
-                out = f"{instruction.fn.__name__}"
-                for pt in data:
-                    out += f" {hex(pt)}"
-
-                f.write(f"{out}\n")
+                f.write(f"{instruction.str(data)}\n")
+    elif sys.argv[1] == "assembler":
+        pass

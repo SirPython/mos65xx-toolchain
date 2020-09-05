@@ -2,10 +2,13 @@
 # todo: all instructions of same type have same # of bytes
 
 class Instruction():
-    def __init__(self, fn, num_cycles, num_bytes):
+    def __init__(self, fn, num_cycles, num_bytes, type):
         self.fn = fn
         self.num_cycles = num_cycles
         self.num_bytes = num_bytes
+        self.type = type
+
+        self.name = fn.__name__
 
     def mem_routine(self, addr, mos):
         """
@@ -17,15 +20,19 @@ class Instruction():
         if ret:
             mos[addr] = ret
 
+    def str(self, data):
+        return f"{self.name} {self.type}({','.join(map(hex, data))})"
+
 class ImmediateInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "imm")
 
     def __call__(self, data, mos):
         self.fn(data[0], mos)
+
 class AbsoluteInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 3)
+        super().__init__(fn, num_cycles, 3, "abs")
 
     def __call__(self, data, mos):
         self.mem_routine(
@@ -34,25 +41,30 @@ class AbsoluteInstruction(Instruction):
         )
 class ZeroPageInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "zp")
 
     def __call__(self, data, mos):
         self.mem_routine(data[0], mos)
+
 class AccumulatorInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 1)
+        super().__init__(fn, num_cycles, 1, "acc")
 
     def __call__(self, data, mos):
         self.fn("a", mos)
+
 class ImpliedInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 1)
+        super().__init__(fn, num_cycles, 1, "")
 
     def __call__(self, data, mos):
         self.fn(mos)
+
+    def str(self, data):
+        return f"{self.name}"
 class IndirectXInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "ix")
 
     def __call__(self, data, mos):
         addr = data[0] + mos.index_x
@@ -62,28 +74,31 @@ class IndirectXInstruction(Instruction):
         )
 class IndirectYInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "iy")
 
     def __call__(self, data, mos):
         self.mem_routine(
             mos[data[0]] + mos.index_y,
             mos
         )
+
 class ZeroPageXInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "zpx")
 
     def __call__(self, data, mos):
         self.mem_routine(data[0] + mos.index_x, mos)
+
 class AbsoluteXInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 3)
+        super().__init__(fn, num_cycles, 3, "absx")
 
     def __call__(self, data, mos):
         self.mem_routine(data[0] + data[1] + mos.index_x, mos)
+
 class AbsoluteYInsturction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 3)
+        super().__init__(fn, num_cycles, 3, "absy")
 
     def __call__(self, data, mos):
         self.mem_routine(data[0] + data[1] + mos.index_y, mos)
@@ -95,24 +110,24 @@ class RelativeInstruction(Instruction):
         self.num_cycles = num_cycles
         self.num_bytes = 2
 
-        def _():
-            pass
-        self.fn = _
-        self.fn.__name__ = name
+        self.name = name
 
     def __call__(self, data, mos):
         if mos[self.status_flag] == self.cond_val:
             mos["pc"] = (mos["pc"] & 0xFF) + data[0]
+
+    def str(self, data):
+        return f"{self.name}"
 class IndirectInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 3)
+        super().__init__(fn, num_cycles, 3, "y")
 
     def __call__(self, data, mos):
         addr = data[0] + (data[1] << 8)
         self.fn(mos[addr] + (mos[addr + 1] << 8), mos)
 class ZeroPageYInstruction(Instruction):
     def __init__(self, fn, num_cycles):
-        super().__init__(fn, num_cycles, 2)
+        super().__init__(fn, num_cycles, 2, "zpy")
 
     def __call__(self, data, mos):
         self.mem_routine(data[0] + mos.index_y, mos)
