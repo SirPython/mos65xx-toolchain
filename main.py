@@ -5,11 +5,9 @@ http://pdf.datasheetcatalog.com/datasheet/UMC/mXyztwtz.pdf
 """
 import os
 import sys
+import re
 
 from mos6500 import MOS6500
-
-
-""" JUST MAKE THIS A PROPER ASSEMBLER, DISASSEMBLER, LINKER, DEBUGGER COMBO """
 
 if __name__ == "__main__":
     if sys.argv[1] == "debugger":
@@ -47,13 +45,70 @@ if __name__ == "__main__":
             while True:
                 try:
                     instruction, data = mos.read_instruction()
-                except (IndexError, KeyError):
+                except IndexError:
                     """
-                    Reached when the end of the file has been met, or when
-                    an invalid opcode is encountered.
+                    EOF
                     """
                     break
+                except KeyError:
+                    """
+                    Non-instruction encountered; perhaps in a memory block.
+                    """
+                    continue
 
                 f.write(f"{instruction.str(data)}\n")
     elif sys.argv[1] == "assembler":
-        pass
+        mos = MOS6500(0)
+
+        ptrn = re.compile("[a-zA-Z0-9]+")
+        with open(sys.argv[2], "r") as f, open(f"{sys.argv[2].split('.')[0]}.bin", "wb") as out:
+            symbols = {}
+            line = 1
+            num_bytes = 0
+            while True:
+                asm = f.readline()
+                if asm == "":
+                    break
+                elif asm == "\n":
+                    continue
+
+                parts = ptrn.findall(asm)
+
+                # Symbol declaration
+                if parts[0][0] == ":":
+                    symbols[parts[0]] = num_bytes
+                    continue
+
+                opcode = parts[0]
+                type = ""
+                operands = []
+
+                if len(parts) > 1:
+                    type = parts[1]
+                    operands = parts[2:]
+
+                for i, instruction in enumerate(mos.instruction_set):
+                    if instruction == 0:
+                        continue
+
+                    if instruction.name == str.upper(opcode) and instruction.type == str.lower(type):
+                        opcode = i
+                        break
+
+                for i, operand in enumerate(operands):
+                    # Is it a literal?
+                    try:
+                        operands[i] = int(operand, base=16)
+                    except ValueError:
+                        # If it's a symbol, retrieve the byte # that the symbol
+                        # appeared
+                        if operands[i] in symbols:
+                            operands[i] = symbols[operands[i]]
+                        else:
+                            print(f"Error: unexpected symbol on line {line}\n")
+                            sys.exit(1)
+
+                out.write(bytes([opcode] + operands))
+
+                line += 1
+                num_bytes += 1 + len(operands)

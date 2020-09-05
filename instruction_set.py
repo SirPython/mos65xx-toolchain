@@ -111,6 +111,7 @@ class RelativeInstruction(Instruction):
         self.num_bytes = 2
 
         self.name = name
+        self.type = ""
 
     def __call__(self, data, mos):
         if mos[self.status_flag] == self.cond_val:

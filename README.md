@@ -1,1 +1,1 @@
-# atari2600-emulator
+# MOS65xx debugger, assembler, and disassembler
